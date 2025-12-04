@@ -148,18 +148,32 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
             mostrarDetalle(entrenamiento);
         });
 
-        // ========== PASO 8: CONFIGURACIÓN ESPECIAL PARA LANDSCAPE ==========
-        // En landscape (vista dual), mostrar el entrenamiento correspondiente
-        if (isDualPane && !entrenamientos.isEmpty()) {
-            // Si hay una posición guardada (rotación), mostrar ese entrenamiento
-            if (posicionSeleccionada >= 0 && posicionSeleccionada < entrenamientos.size()) {
+        // ========== PASO 8: CONFIGURACIÓN ESPECIAL SEGÚN ORIENTACIÓN Y SELECCIÓN ==========
+
+        // Verificar si hay un entrenamiento previamente seleccionado (rotación con selección)
+        if (posicionSeleccionada >= 0 && posicionSeleccionada < entrenamientos.size()) {
+            // Hay una selección previa válida, mostrar ese entrenamiento
+
+            if (isDualPane) {
+                // ===== LANDSCAPE con selección =====
+                // Mostrar en vista dual (ListView + Fragment)
                 mostrarDetalle(entrenamientos.get(posicionSeleccionada));
             } else {
-                // Si no hay selección previa, mostrar el primer entrenamiento
-                posicionSeleccionada = 0;
-                mostrarDetalle(entrenamientos.get(0));
+                // ===== PORTRAIT con selección =====
+                // Mostrar directamente el fragment en pantalla completa
+                // Ocultar el ListView y mostrar solo el fragment
+                lvEntrenamientos.setVisibility(View.GONE);
+                fragmentContainer.setVisibility(View.VISIBLE);
+                mostrarDetalle(entrenamientos.get(posicionSeleccionada));
             }
+        } else if (isDualPane && !entrenamientos.isEmpty()) {
+            // ===== LANDSCAPE sin selección previa =====
+            // Mostrar el primer entrenamiento por defecto en vista dual
+            posicionSeleccionada = 0;
+            mostrarDetalle(entrenamientos.get(0));
         }
+        // Si estamos en portrait sin selección previa, solo se muestra el ListView
+        // (comportamiento por defecto, no hacemos nada)
 
         // ========== PASO 9: CONFIGURAR NAVEGACIÓN DEL BOTÓN ATRÁS ==========
         configurarBackNavigation();  // Método que gestiona el comportamiento del botón atrás
