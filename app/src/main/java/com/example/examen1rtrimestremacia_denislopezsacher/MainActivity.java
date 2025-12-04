@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
     /** Gestor de almacenamiento persistente usando SharedPreferences */
     private EntrenamientoStorage storage;
 
+    /** Posición del entrenamiento actualmente seleccionado (-1 si no hay selección) */
+    private int posicionSeleccionada = -1;
+
     /**
      * onCreate - Método del ciclo de vida llamado cuando se crea la Activity
      *
@@ -113,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
         if (savedInstanceState != null && savedInstanceState.containsKey("entrenamientos")) {
             // getParcelableArrayList deserializa los objetos Parcelable guardados
             entrenamientos = savedInstanceState.getParcelableArrayList("entrenamientos");
+            // Restaurar también la posición seleccionada (si existe)
+            posicionSeleccionada = savedInstanceState.getInt("posicion_seleccionada", -1);
         }
         // PRIORIDAD 2: Cargar desde SharedPreferences (app cerrada y vuelta a abrir)
         else if (storage.hayEntrenamientosGuardados()) {
@@ -134,6 +139,9 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
         // ========== PASO 7: CONFIGURAR LISTENER DE CLICKS EN EL LISTVIEW ==========
         // Lambda que se ejecuta cuando el usuario hace click en un item del ListView
         lvEntrenamientos.setOnItemClickListener((parent, view, position, id) -> {
+            // Guardar la posición seleccionada para restaurarla al rotar
+            posicionSeleccionada = position;
+
             // Obtener el entrenamiento correspondiente a la posición clickeada
             Entrenamiento entrenamiento = entrenamientos.get(position);
             // Mostrar el fragment de detalle con la información del entrenamiento
@@ -141,10 +149,16 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
         });
 
         // ========== PASO 8: CONFIGURACIÓN ESPECIAL PARA LANDSCAPE ==========
-        // En landscape (vista dual), mostrar el primer entrenamiento automáticamente
-        // Esto llena el espacio del fragment que está visible permanentemente
+        // En landscape (vista dual), mostrar el entrenamiento correspondiente
         if (isDualPane && !entrenamientos.isEmpty()) {
-            mostrarDetalle(entrenamientos.get(0));  // Mostrar el primer entrenamiento
+            // Si hay una posición guardada (rotación), mostrar ese entrenamiento
+            if (posicionSeleccionada >= 0 && posicionSeleccionada < entrenamientos.size()) {
+                mostrarDetalle(entrenamientos.get(posicionSeleccionada));
+            } else {
+                // Si no hay selección previa, mostrar el primer entrenamiento
+                posicionSeleccionada = 0;
+                mostrarDetalle(entrenamientos.get(0));
+            }
         }
 
         // ========== PASO 9: CONFIGURAR NAVEGACIÓN DEL BOTÓN ATRÁS ==========
@@ -379,6 +393,10 @@ public class MainActivity extends AppCompatActivity implements AddEntrenamientoD
         // putParcelableArrayList serializa los objetos Parcelable
         // Se crea una nueva ArrayList para evitar problemas de mutabilidad
         outState.putParcelableArrayList("entrenamientos", new ArrayList<>(entrenamientos));
+
+        // Guardar la posición del entrenamiento seleccionado
+        // Esto permite restaurar la selección después de rotar la pantalla
+        outState.putInt("posicion_seleccionada", posicionSeleccionada);
     }
 
     /**
