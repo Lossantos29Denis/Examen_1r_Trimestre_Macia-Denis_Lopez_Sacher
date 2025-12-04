@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Entrenamientos</string>
+    <string name="action_add">Añadir</string>
+    <string name="dialog_title">Añadir Entrenamiento</string>
+    <string name="hint_nombre">Nombre del entrenamiento</string>
+    <string name="hint_descripcion">Descripción del entrenamiento</string>
+    <string name="label_select_icon">Selecciona un icono:</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_save">Guardar</string>
+    <string name="selecciona_entrenamiento">Selecciona un entrenamiento</string>
+</resources>
